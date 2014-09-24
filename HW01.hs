@@ -19,3 +19,11 @@ lastDigit x = x `mod` 10
 
 dropLastDigit :: Integer -> Integer
 dropLastDigit x = x `div` 10
+
+-- Exercise 2
+toDigitsReversed x | x <= 0     = []
+                   | x < 10     = [x]
+                   | otherwise  = lastDigit x : toDigitsReversed (dropLastDigit x)
+
+toDigits :: Integer -> [Integer]
+toDigits x = reverse (toDigitsReversed x)
