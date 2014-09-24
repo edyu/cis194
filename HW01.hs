@@ -12,3 +12,10 @@ isThisWorking = "Yes"
 -- `isThisWorking` at the prompt. GHCi will tell you whether it's working!
 
 -- Put your work below.
+
+-- Exercise 1
+lastDigit :: Integer -> Integer
+lastDigit x = x `mod` 10
+
+dropLastDigit :: Integer -> Integer
+dropLastDigit x = x `div` 10
