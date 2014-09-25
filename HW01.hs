@@ -40,3 +40,7 @@ doubleEveryOther xs = reverse (dontApply (* 2) (reverse xs))
 -- Exercise 4
 sumDigits :: [Integer] -> Integer
 sumDigits xs = foldl (\acc x -> if x >= 10 then acc + lastDigit x + dropLastDigit x else acc + x) 0 xs
+
+-- Exercise 5
+validate :: Integer -> Bool
+validate x = lastDigit (sumDigits (doubleEveryOther (toDigits x))) == 0
