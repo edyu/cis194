@@ -21,8 +21,18 @@ dropLastDigit :: Integer -> Integer
 dropLastDigit x = x `div` 10
 
 -- Exercise 2
-toDigitsReversed x | x <= 0     = []
-                   | otherwise  = lastDigit x : toDigitsReversed (dropLastDigit x)
+toDigitsReversed x | x <= 0    = []
+                   | otherwise = lastDigit x : toDigitsReversed (dropLastDigit x)
 
 toDigits :: Integer -> [Integer]
 toDigits x = reverse (toDigitsReversed x)
+
+-- Exercise 3
+apply f xs | null xs   = []
+           | otherwise = (f (head xs)) : dontApply f (tail xs)
+
+dontApply f xs | null xs   = []
+               | otherwise = (head xs) : apply f (tail xs)
+
+doubleEveryOther :: [Integer] -> [Integer]
+doubleEveryOther xs = reverse (dontApply (* 2) (reverse xs))
