@@ -57,3 +57,12 @@ sumDigits xs = foldl (\acc x -> if x >= 10 then acc + lastDigit x + dropLastDigi
 -- Indicate whether an INteger could be a valid credit card number
 validate :: Integer -> Bool
 validate x = lastDigit (sumDigits (doubleEveryOther (toDigits x))) == 0
+
+-- Exercise 6
+-- Return a list of moves to be performed to move the stack of discs
+type Peg = String
+type Move = (Peg, Peg)
+hanoi :: Integer -> Peg -> Peg -> Peg -> [Move]
+hanoi x a b c | x <= 0    = []
+              | x == 1    = [(a, b)]
+              | otherwise = hanoi (x - 1) a c b ++ [(a, b)] ++ hanoi (x - 1) c b a
