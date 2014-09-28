@@ -37,13 +37,27 @@ type STemplate = Template
 -- Exercise 1
 -- Whether a certain word is formable from the tiles in a Scrabble hand
 formableBy :: String -> Hand -> Bool
-formableBy "" hand   = True
-formableBy ss hs | length ss > length hs = False
-formableBy (s:ss) hs = if s `elem` hs
-                       then formableBy ss (delete s hs)
-                       else False
+formableBy [] _        = True
+formableBy word hand | length word > length hand = False
+formableBy (s:ss) hand = if s `elem` hand
+                         then formableBy ss (delete s hand)
+                         else False
 
 -- Exercise 2
 -- Give a list of all valid Scrabble words formable from a certain hand
 wordsFrom :: Hand -> [String]
 wordsFrom hand = filter (`formableBy` hand) allWords
+
+-- Exercise 3
+-- Check to see if a given word matches a template
+wordFitsTemplate :: Template -> Hand -> String -> Bool
+wordFitsTemplate [] _ [] = True
+wordFitsTemplate [] _ _  = False
+wordFitsTemplate _ _ []  = False
+wordFitsTemplate t _ s
+  | length t /= length s = False
+wordFitsTemplate (t:ts) hand (s:ss)
+  | t /= '?' && t /= s   = False
+  | t == s               = wordFitsTemplate ts hand ss
+  | s `elem` hand        = wordFitsTemplate ts (delete s hand) ss
+  | otherwise            = False
