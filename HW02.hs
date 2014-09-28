@@ -61,3 +61,8 @@ wordFitsTemplate (t:ts) hand (s:ss)
   | t == s               = wordFitsTemplate ts hand ss
   | s `elem` hand        = wordFitsTemplate ts (delete s hand) ss
   | otherwise            = False
+
+-- Exercise 4
+-- Produce all valid Scrabble words that match a iven template
+wordsFittingTemplate :: Template -> Hand -> [String]
+wordsFittingTemplate t hand = filter (\w -> wordFitsTemplate t hand w) (wordsFrom (hand ++ (filter (\x -> x /= '?') t)))
