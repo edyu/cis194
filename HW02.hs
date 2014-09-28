@@ -95,3 +95,11 @@ scrabbleValueTemplate tmpl word = mplier * (normal + bonus)
                                     extra (_,_)   = 0
                                     values = (zip tmpl word)
                                     bonus = sum (map extra values)
+
+-- Challenge
+-- Do not require that the word takes up the entire template
+wordFitsTemplate2 :: Template -> Hand -> String -> Bool
+wordFitsTemplate2 tmpl hand word = or (map (\t -> wordFitsTemplate t hand word) (uniqPerms tmpl))
+  where perms [] = []
+        perms xs = (inits xs) ++ (perms (tail xs))
+        uniqPerms xs = nub (perms xs)
