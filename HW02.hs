@@ -66,3 +66,9 @@ wordFitsTemplate (t:ts) hand (s:ss)
 -- Produce all valid Scrabble words that match a iven template
 wordsFittingTemplate :: Template -> Hand -> [String]
 wordsFittingTemplate t hand = filter (\w -> wordFitsTemplate t hand w) (wordsFrom (hand ++ (filter (\x -> x /= '?') t)))
+
+-- Exercise 5
+-- Give the point value of any word
+scrabbleValueWord :: String -> Int
+scrabbleValueWord word = sum (map scrabbleValue word)
+
