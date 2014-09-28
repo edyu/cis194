@@ -37,3 +37,11 @@ tryParse _ line        = InvalidLM line
 
 parseMessage :: String -> MaybeLogMessage
 parseMessage line = tryParse (words line) line
+
+-- Exercise 2
+-- Throw out the invalid messages
+validMessagesOnly :: [MaybeLogMessage] -> [LogMessage]
+validMessagesOnly []     = []
+validMessagesOnly (m:ms) = case m of
+                           InvalidLM _ -> validMessagesOnly ms
+                           ValidLM lm  -> lm : validMessagesOnly ms
