@@ -45,3 +45,13 @@ validMessagesOnly []     = []
 validMessagesOnly (m:ms) = case m of
                            InvalidLM _ -> validMessagesOnly ms
                            ValidLM lm  -> lm : validMessagesOnly ms
+
+-- Exercise 3
+-- Parse te entire log file at once
+parse :: String -> [LogMessage]
+parse allLines = validMessagesOnly (map parseMessage (lines allLines))
+
+-- Exercise 4
+-- Compare two LogMessages based on their timestamps
+compareMsgs :: LogMessage -> LogMessage -> Ordering
+compareMsgs (LogMessage _ ts1 _) (LogMessage _ ts2 _) = ts1 `compare` ts2
