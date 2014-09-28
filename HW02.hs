@@ -43,5 +43,7 @@ formableBy (s:ss) hs = if s `elem` hs
                        then formableBy ss (delete s hs)
                        else False
 
+-- Exercise 2
+-- Give a list of all valid Scrabble words formable from a certain hand
 wordsFrom :: Hand -> [String]
 wordsFrom hand = filter (`formableBy` hand) allWords
