@@ -8,6 +8,7 @@ Notes:
 module LogAnalysis where
 
 import Log
+import Data.List (sortBy)
 
 -- Exercise 1
 -- Parse an individual line from the log file
@@ -55,3 +56,18 @@ parse allLines = validMessagesOnly (map parseMessage (lines allLines))
 -- Compare two LogMessages based on their timestamps
 compareMsgs :: LogMessage -> LogMessage -> Ordering
 compareMsgs (LogMessage _ ts1 _) (LogMessage _ ts2 _) = ts1 `compare` ts2
+
+-- Exercise 5
+-- Sort the list of messages
+sortMessages :: [LogMessage] -> [LogMessage]
+sortMessages ms = sortBy compareMsgs ms
+
+-- Exercise 6
+-- Return a list of LogMessages corresponding to any
+-- errors with severity of 50 or greater, sorted by timestamp
+whatWentWrong :: [LogMessage] -> [String]
+whatWentWrong []  = []
+whatWentWrong lms = map (\(LogMessage _ _ m) -> m) (filter filterError lms)
+  where filterError (LogMessage mt _ _) = case mt of
+                                          Error sev | sev >= 50 -> True
+                                          _                     -> False
