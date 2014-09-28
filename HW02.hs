@@ -1,8 +1,8 @@
+{-# OPTIONS_GHC -Wall #-}
 {-
-Name: <your name here>
-Collaborators: <your collaborators here, or "none">
-Notes: <any particular notes about your work -- what you struggled with,
-        what's not working, what's really cool, etc.>
+Name: Ed Yu
+Collaborators: none
+Notes:
 -}
 
 module HW02 where
@@ -33,8 +33,15 @@ type Template = String
 type STemplate = Template
 
 -- Write your code below:
+
+-- Exercise 1
+-- Whether a certain word is formable from the tiles in a Scrabble hand
 formableBy :: String -> Hand -> Bool
-formableBy = undefined
+formableBy "" hand   = True
+formableBy ss hs | length ss > length hs = False
+formableBy (s:ss) hs = if s `elem` hs
+                       then formableBy ss (delete s hs)
+                       else False
 
 wordsFrom :: Hand -> [String]
 wordsFrom hand = filter (`formableBy` hand) allWords
