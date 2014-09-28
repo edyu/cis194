@@ -72,3 +72,26 @@ wordsFittingTemplate t hand = filter (\w -> wordFitsTemplate t hand w) (wordsFro
 scrabbleValueWord :: String -> Int
 scrabbleValueWord word = sum (map scrabbleValue word)
 
+-- Exercise 6
+-- Select out words that have the maximum point value
+bestWords :: [String] -> [String]
+bestWords ws = let values   = map scrabbleValueWord ws
+                   maxValue = maximum values
+               in map snd (filter (\(v, _) -> v == maxValue) (zip values ws))
+
+-- Exercise 7
+-- Compute the value of playing a given word on a given template
+scrabbleValueTemplate :: STemplate -> String -> Int
+scrabbleValueTemplate tmpl word = mplier * (normal + bonus)
+                                  where
+                                    normal = scrabbleValueWord word
+                                    mfunc '2' acc = 2 * acc
+                                    mfunc '3' acc = 3 * acc
+                                    mfunc _   acc = acc
+                                    mplier = foldr mfunc 1 tmpl
+                                    val w = scrabbleValue w
+                                    extra ('D',w) = val w
+                                    extra ('T',w) = 2 * (val w)
+                                    extra (_,_)   = 0
+                                    values = (zip tmpl word)
+                                    bonus = sum (map extra values)
