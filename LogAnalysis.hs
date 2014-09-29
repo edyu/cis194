@@ -8,7 +8,8 @@ Notes:
 module LogAnalysis where
 
 import Log
-import Data.List (sortBy)
+import Data.List (sortBy, isInfixOf)
+import Data.Char (toLower)
 
 -- Exercise 1
 -- Parse an individual line from the log file
@@ -66,8 +67,16 @@ sortMessages ms = sortBy compareMsgs ms
 -- Return a list of LogMessages corresponding to any
 -- errors with severity of 50 or greater, sorted by timestamp
 whatWentWrong :: [LogMessage] -> [String]
-whatWentWrong []  = []
 whatWentWrong lms = map (\(LogMessage _ _ m) -> m) (filter filterError lms)
   where filterError (LogMessage mt _ _) = case mt of
                                           Error sev | sev >= 50 -> True
                                           _                     -> False
+
+-- Exercise 7
+-- Include only those messages that contain the string provided
+messagesAbout :: String -> [LogMessage] -> [LogMessage]
+messagesAbout word lms =
+  filter (\(LogMessage _ _ msg) -> isInfixOf lcword (lowerCase msg))
+    lms
+  where lowerCase w = map toLower w
+        lcword      = lowerCase word
