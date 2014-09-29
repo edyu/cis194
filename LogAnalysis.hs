@@ -66,17 +66,28 @@ sortMessages ms = sortBy compareMsgs ms
 -- Exercise 6
 -- Return a list of LogMessages corresponding to any
 -- errors with severity of 50 or greater, sorted by timestamp
+filterError :: LogMessage -> Bool
+filterError (LogMessage (Error sev) _ _) | sev >= 50 = True
+filterError _                                        = False
+
 whatWentWrong :: [LogMessage] -> [String]
 whatWentWrong lms = map (\(LogMessage _ _ m) -> m) (filter filterError lms)
-  where filterError (LogMessage mt _ _) = case mt of
-                                          Error sev | sev >= 50 -> True
-                                          _                     -> False
 
 -- Exercise 7
 -- Include only those messages that contain the string provided
+filterAbout :: String -> LogMessage -> Bool
+filterAbout word (LogMessage _ _ msg) = isInfixOf lcword (lowerCase msg)
+                                        where lowerCase w = map toLower w
+                                              lcword      = lowerCase word
+
 messagesAbout :: String -> [LogMessage] -> [LogMessage]
-messagesAbout word lms =
-  filter (\(LogMessage _ _ msg) -> isInfixOf lcword (lowerCase msg))
-    lms
-  where lowerCase w = map toLower w
-        lcword      = lowerCase word
+messagesAbout word lms = filter (filterAbout word) lms
+
+-- Exercise 8
+-- Make a list including both all high-severity errors and
+-- all messages containing the provided string
+(|||) :: (LogMessage -> Bool) -> (LogMessage -> Bool) -> LogMessage -> Bool
+(|||) f g x = f x || g x
+
+whatWentWrongEnhanced :: String -> [LogMessage] -> [String]
+whatWentWrongEnhanced word lms = map (\(LogMessage _ _ msg) -> msg) (sortMessages (filter ((filterAbout word) ||| filterError) lms))
