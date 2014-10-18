@@ -9,6 +9,7 @@ module HW04 where
 
 import Data.Char (isUpper, isSpace)
 import Data.List (dropWhileEnd)
+import Data.Maybe (isJust, fromJust)
 
 import BST
 
@@ -108,3 +109,16 @@ allCaps = all $ all isUpper
 -- Drop the trailing whitespace from a string
 dropTrailingWhitespace :: String -> String
 dropTrailingWhitespace = dropWhileEnd isSpace
+
+safeHead :: [a] -> Maybe a
+safeHead []    = Nothing
+safeHead (x:_) = Just x
+
+safeTail :: [a] -> Maybe [a]
+safeTail []     = Nothing
+safeTail (_:xs) = Just xs
+
+-- Exercise 16
+-- Get the first letter of a list of strings
+firstLetters :: [String] -> [Char]
+firstLetters xs = map fromJust $ filter isJust $ map safeHead xs
