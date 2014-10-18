@@ -7,6 +7,10 @@ Notes:
 
 module HW04 where
 
+import Data.Char
+
+import BST
+
 -- Exercise 1
 ex1 :: a -> b -> b
 ex1 _ y = y
@@ -84,3 +88,12 @@ ex12 = id
 -- the only other implementation is just return Nothing
 ex12' :: Maybe a -> Maybe a
 ex12' _ = Nothing
+
+-- Exercise 13
+-- Insert into a binary search tree
+insertBST :: (a -> a -> Ordering) -> a -> BST a -> BST a
+insertBST _ x Leaf = Node Leaf x Leaf
+insertBST f x (Node a y b)
+    | f x y == EQ || f x y == LT = Node (insertBST f x a) y b
+    | f x y == GT                = Node a y (insertBST f x b)
+insertBST _ _ _ = error "impossible"
