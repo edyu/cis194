@@ -8,7 +8,7 @@ Notes:
 module HW04 where
 
 import Data.Char (isUpper, isSpace)
-import Data.List (dropWhileEnd)
+import Data.List (dropWhileEnd, intercalate)
 import Data.Maybe (isJust, fromJust)
 
 import BST
@@ -122,3 +122,8 @@ safeTail (_:xs) = Just xs
 -- Get the first letter of a list of strings
 firstLetters :: [String] -> [Char]
 firstLetters xs = map fromJust $ filter isJust $ map safeHead xs
+
+-- Exercise 17
+-- Render a proper bracketed list given a list of strings
+asList :: [String] -> String
+asList xs = '[' : (intercalate "," xs) ++ "]"
