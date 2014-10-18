@@ -7,7 +7,8 @@ Notes:
 
 module HW04 where
 
-import Data.Char
+import Data.Char (isUpper, isSpace)
+import Data.List (dropWhileEnd)
 
 import BST
 
@@ -102,3 +103,8 @@ insertBST _ _ _ = error "impossible"
 -- Check whether a list of strings contain only capitalized words
 allCaps :: [String] -> Bool
 allCaps = all $ all isUpper
+
+-- Exercise 15
+-- Drop the trailing whitespace from a string
+dropTrailingWhitespace :: String -> String
+dropTrailingWhitespace = dropWhileEnd isSpace
