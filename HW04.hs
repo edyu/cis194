@@ -97,3 +97,8 @@ insertBST f x (Node a y b)
     | f x y == EQ || f x y == LT = Node (insertBST f x a) y b
     | f x y == GT                = Node a y (insertBST f x b)
 insertBST _ _ _ = error "impossible"
+
+-- Exercise 14
+-- Check whether a list of strings contain only capitalized words
+allCaps :: [String] -> Bool
+allCaps = all $ all isUpper
