@@ -7,6 +7,7 @@ Notes:
 
 module HW05 where
 
+import Data.Maybe    ( listToMaybe )
 import Ring
 import Parser
 
@@ -37,3 +38,13 @@ mod5RingWorks = add (MkMod 3) (MkMod 4) == MkMod 2 &&
                 mul (MkMod 3) mulId == MkMod 3 &&
                 mul mulId (MkMod 2) == MkMod 2 &&
                 mul (MkMod 3) (MkMod 2) == MkMod 1
+
+instance Parsable Mod5 where
+    parse s = case ((listToMaybe . reads) s) of
+                Nothing     -> Nothing
+                Just (x, y) -> Just (MkMod x, y)
+
+mod5ParsingWorks :: Bool
+mod5ParsingWorks = (parse "3" == Just (MkMod 3, "")) &&
+                   (parseRing "1 + 2 * 5" == Just (MkMod 1)) &&
+                   (addId == (MkMod 0))
