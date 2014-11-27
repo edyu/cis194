@@ -48,3 +48,26 @@ mod5ParsingWorks :: Bool
 mod5ParsingWorks = (parse "3" == Just (MkMod 3, "")) &&
                    (parseRing "1 + 2 * 5" == Just (MkMod 1)) &&
                    (addId == (MkMod 0))
+
+-- Exercise 3
+data Mat2x2 = MkMat (Integer, Integer) (Integer, Integer)
+  deriving (Show, Eq)
+
+instance Ring Mat2x2 where
+    addId = MkMat (0, 0) (0, 0)
+    addInv (MkMat (x1, y1) (x2, y2)) = MkMat (-x1, -y1) (-x2, -y2)
+    mulId = MkMat (1, 0) (0, 1)
+
+    add (MkMat (x1, y1) (x2, y2)) (MkMat (u1, v1) (u2, v2)) = MkMat (x1 + u1, y1 + v1) (x2 + u2, y2 + v2)
+    mul (MkMat (x1, y1) (x2, y2)) (MkMat (u1, v1) (u2, v2)) = MkMat (x1 * u1 + y1 * u2, x1 * v1 + y1 * v2) (x2 * u1 + y2 * u2, x2 * v1 + y2 * v2)
+
+mat2x2RingWorks :: Bool
+mat2x2RingWorks =  let mat1 = MkMat (1, 2) (3, 4)
+                       mat2 = MkMat (5, 6) (7, 8)
+                   in  add mat1 mat2 == MkMat (6, 8) (10, 12) &&
+                       add mat2 mat1 == MkMat (6, 8) (10, 12)  &&
+                       add mat1 (addInv mat1) == addId &&
+                       add mat1 addId == mat1 &&
+                       mul mat1 mulId == mat1 &&
+                       mul mulId mat2 == mat2 &&
+                       mul mat1 mat2 == MkMat (19, 22) (43, 50)
