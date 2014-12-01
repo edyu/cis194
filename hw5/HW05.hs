@@ -7,7 +7,8 @@ Notes:
 
 module HW05 where
 
-import Data.Maybe    ( listToMaybe )
+import Data.Maybe (listToMaybe)
+import Data.Char  (isSpace)
 import Ring
 import Parser
 
@@ -71,3 +72,26 @@ mat2x2RingWorks =  let mat1 = MkMat (1, 2) (3, 4)
                        mul mat1 mulId == mat1 &&
                        mul mulId mat2 == mat2 &&
                        mul mat1 mat2 == MkMat (19, 22) (43, 50)
+
+instance Parsable Mat2x2 where
+    parse s  = let stripPrefix ('[':'[':xs) = Just xs
+                   stripPrefix _            = Nothing
+               in  case (stripPrefix $ filter (not . isSpace) s) of
+                   Nothing -> Nothing
+                   Just xs -> parseInside xs
+               where parseInside cs = case reads cs :: [(Integer,String)] of
+                         [(x1, (',' : s1))] -> case reads s1 :: [(Integer,String)] of
+                             [(y1, (']':'[':s2))] -> case reads s2 :: [(Integer,String)] of
+                                 [(x2, (',':s3))] -> case reads s3 :: [(Integer,String)] of
+                                      [(y2, (']':']':xs))] -> Just (MkMat (x1, y1) (x2, y2), xs)
+                                      _ -> Nothing
+                                 _ -> Nothing
+                             _ -> Nothing
+                         _ -> Nothing
+
+mat2x2ParsingWorks :: Bool
+mat2x2ParsingWorks = (parse "[[1,2][3,4]]" == Just ((MkMat (1,2) (3, 4)), "")) &&
+                     (parse "[[5,6][7,8]]" == Just ((MkMat (5,6) (7, 8)), "")) &&
+                     (parse " [ [ 9 , 3 ] [ 6 , 0 ] ] " == Just ((MkMat (9,3) (6, 0)), "")) &&
+                     (parseRing "[[1,2][3,4]] + [[5,6][7,8]]" == Just (MkMat (6,8) (10,12))) &&
+                     (parseRing "[[1,2][3,4]] + [[5,6][7,8]] * [[1,0][0,1]] + [[0,0][0,0]]" == Just (MkMat (6,8) (10,12)))
