@@ -7,8 +7,8 @@ Notes:
 
 module HW05 where
 
-import Data.Maybe (listToMaybe)
 import Data.Char  (isSpace)
+import Data.Maybe (listToMaybe)
 import Ring
 import Parser
 
@@ -95,3 +95,26 @@ mat2x2ParsingWorks = (parse "[[1,2][3,4]]" == Just ((MkMat (1,2) (3, 4)), "")) &
                      (parse " [ [ 9 , 3 ] [ 6 , 0 ] ] " == Just ((MkMat (9,3) (6, 0)), "")) &&
                      (parseRing "[[1,2][3,4]] + [[5,6][7,8]]" == Just (MkMat (6,8) (10,12))) &&
                      (parseRing "[[1,2][3,4]] + [[5,6][7,8]] * [[1,0][0,1]] + [[0,0][0,0]]" == Just (MkMat (6,8) (10,12)))
+
+-- Exercise 4
+instance Ring Bool where
+    addId = False
+    addInv = (not)
+    mulId = True
+
+    add = (/=)
+    mul = (&&)
+
+boolRingWorks :: Bool
+boolRingWorks = add True False == True &&
+                add False True == True &&
+                add True True == False &&
+                add False False == False &&
+                add True addId == True &&
+                add False addId == False &&
+                mul True False == False &&
+                mul False True == False &&
+                mul True True == True &&
+                mul False False == False &&
+                mul True mulId == True &&
+                mul False mulId == False
