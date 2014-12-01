@@ -118,3 +118,16 @@ boolRingWorks = add True False == True &&
                 mul False False == False &&
                 mul True mulId == True &&
                 mul False mulId == False
+
+instance Parsable Bool where
+    parse = listToMaybe . reads
+
+boolParsingWorks :: Bool
+boolParsingWorks = (parse "True" == Just (True, "")) &&
+                   (parse "False" == Just (False, "")) &&
+                   (parseRing "True + False * True" == Just True) &&
+                   (parseRing "True + True * True" == Just False) &&
+                   (parseRing "False + True * False" == Just False) &&
+                   (parseRing "False * False + False" == Just False) &&
+                   (addId == False) &&
+                   (mulId == True)
