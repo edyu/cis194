@@ -8,7 +8,7 @@ Notes:
 module HW05 where
 
 import Data.Char  (isSpace)
-import Data.Maybe (listToMaybe)
+import Data.Maybe (listToMaybe, fromJust)
 import Ring
 import Parser
 
@@ -131,3 +131,21 @@ boolParsingWorks = (parse "True" == Just (True, "")) &&
                    (parseRing "False * False + False" == Just False) &&
                    (addId == False) &&
                    (mulId == True)
+
+-- Exercise 5
+distribute :: RingExpr a -> RingExpr a
+distribute (Lit a) = Lit a
+distribute AddId = AddId
+distribute MulId = MulId
+distribute (AddInv x) = AddInv (distribute x)
+distribute (Add x y) = Add (distribute x) (distribute y)
+distribute (Mul x (Add y z)) = distribute (Add (Mul x y) (Mul x z))
+distribute (Mul (Add x y) z) = distribute (Add (Mul x z) (Mul y z))
+distribute (Mul x y) = Mul (distribute x) (distribute y)
+
+distributeWorks :: Bool
+distributeWorks = ((eval $ fromJust (parseRing "3 * (4 + 9)" :: Maybe (RingExpr Integer))) == (eval $ distribute $ fromJust (parseRing "3 * (4 + 9)" :: Maybe (RingExpr Integer)))) &&
+                  (fromJust (parseRing "3 * (4 + 9)") == (eval $ distribute $ fromJust (parseRing "3 * (4 + 9)" :: Maybe (RingExpr Integer)))) &&
+                  ((eval $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer))) == (eval $ distribute $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer)))) &&
+                  (fromJust (parseRing "(3 + 4) * 9") == (eval $ distribute $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer)))) &&
+                  ((distribute $ fromJust (parseRing "(2 + 3) * (5 + 4)" :: Maybe (RingExpr Integer))) == Add (Add (Mul (Lit 2) (Lit 5)) (Mul (Lit 3) (Lit 5))) (Add (Mul (Lit 2) (Lit 4)) (Mul (Lit 3) (Lit 4))))
