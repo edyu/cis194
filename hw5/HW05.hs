@@ -149,3 +149,25 @@ distributeWorks = ((eval $ fromJust (parseRing "3 * (4 + 9)" :: Maybe (RingExpr 
                   ((eval $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer))) == (eval $ distribute $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer)))) &&
                   (fromJust (parseRing "(3 + 4) * 9") == (eval $ distribute $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer)))) &&
                   ((distribute $ fromJust (parseRing "(2 + 3) * (5 + 4)" :: Maybe (RingExpr Integer))) == Add (Add (Mul (Lit 2) (Lit 5)) (Mul (Lit 3) (Lit 5))) (Add (Mul (Lit 2) (Lit 4)) (Mul (Lit 3) (Lit 4))))
+
+-- Exercise 6
+squashMulId :: (Ring a, Eq a) => RingExpr a -> RingExpr a
+squashMulId (Mul MulId x) = squashMulId x
+squashMulId (Mul x MulId) = squashMulId x
+squashMulId (Mul (Lit a) x) | a == mulId = squashMulId x
+squashMulId (Mul x (Lit a)) | a == mulId = squashMulId x
+squashMulId (Mul x y) = squashMulId (Mul (squashMulId x) (squashMulId y))
+squashMulId (Lit a) = Lit a
+squashMulId AddId = AddId
+squashMulId MulId = MulId
+squashMulId (AddInv x) = AddInv (squashMulId x)
+squashMulId (Add x y) = Add (squashMulId x) (squashMulId y)
+
+squashMulIdWorks :: Bool
+squashMulIdWorks = ((eval $ fromJust (parseRing "3 * 1" :: Maybe (RingExpr Integer))) == (eval $ squashMulId $ fromJust (parseRing "3 * 1" :: Maybe (RingExpr Integer)))) &&
+                  (fromJust (parseRing "1 * (4 + 9)") == (eval $ squashMulId $ fromJust (parseRing "1 * (4 + 9)" :: Maybe (RingExpr Integer)))) &&
+                  ((eval $ fromJust (parseRing "(3 + 4) * 1 + 2 * 1" :: Maybe (RingExpr Integer))) == (eval $ squashMulId $ fromJust (parseRing "(3 + 4) * 1 + 2 * 1" :: Maybe (RingExpr Integer)))) &&
+                  (fromJust (parseRing "1 * 9") == (eval $ squashMulId $ fromJust (parseRing "9" :: Maybe (RingExpr Integer)))) &&
+                  ((squashMulId $ fromJust (parseRing "2 * 1 + 1 * 3" :: Maybe (RingExpr Integer))) == Add (Lit 2) (Lit 3)) &&
+                  ((squashMulId $ fromJust (parseRing "1 * 1" :: Maybe (RingExpr Integer))) == (Lit 1)) &&
+                  ((squashMulId $ fromJust (parseRing "1 * 1 + 1 * (1 * 1)" :: Maybe (RingExpr Integer))) == Add (Lit 1) (Lit 1))
