@@ -173,6 +173,8 @@ squashMulIdWorks = ((eval $ fromJust (parseRing "3 * 1" :: Maybe (RingExpr Integ
                   ((squashMulId $ fromJust (parseRing "1 * 1 + 1 * (1 * 1)" :: Maybe (RingExpr Integer))) == Add (Lit 1) (Lit 1))
 
 -- Exercise 7
+-- Define a traversal function to for the common behavior
+-- Using a type class follows
 traverse :: (RingExpr a -> RingExpr a) -> RingExpr a -> RingExpr a
 traverse _ (Lit x) = Lit x
 traverse _ AddId = AddId
@@ -181,6 +183,7 @@ traverse f (AddInv x) = AddInv (traverse f (f x))
 traverse f (Mul x y) = Mul (traverse f (f x)) (traverse f (f y))
 traverse f (Add x y) = Add (traverse f (f x)) (traverse f (f y))
 
+-- Implementing distribute using the traversal function
 distribute1 :: RingExpr a -> RingExpr a
 distribute1 (Mul x (Add y z)) = distribute1 (Add (Mul x y) (Mul x z))
 distribute1 (Mul (Add x y) z) = distribute1 (Add (Mul x z) (Mul y z))
@@ -193,6 +196,7 @@ distribute1Works = ((eval $ fromJust (parseRing "3 * (4 + 9)" :: Maybe (RingExpr
                   (fromJust (parseRing "(3 + 4) * 9") == (eval $ distribute1 $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer)))) &&
                   ((distribute1 $ fromJust (parseRing "(2 + 3) * (5 + 4)" :: Maybe (RingExpr Integer))) == Add (Add (Mul (Lit 2) (Lit 5)) (Mul (Lit 3) (Lit 5))) (Add (Mul (Lit 2) (Lit 4)) (Mul (Lit 3) (Lit 4))))
 
+-- Implementing squashMulId using the traversal function
 squashMulId1 :: (Ring a, Eq a) => RingExpr a -> RingExpr a
 squashMulId1 (Mul MulId x) = squashMulId1 x
 squashMulId1 (Mul x MulId) = squashMulId1 x
@@ -217,3 +221,46 @@ distributeMod5Works = ((eval $ fromJust (parseRing "3 * (4 + 1)" :: Maybe (RingE
                   (fromJust (parseRing "(3 + 4) * 1") == (eval $ distribute1 $ fromJust (parseRing "(3 + 4) * 1" :: Maybe (RingExpr Mod5)))) &&
                   (fromJust (parseRing "(1 + 2) * 3") == (eval $ distribute1 $ fromJust (parseRing "(1 + 2) * 3" :: Maybe (RingExpr Mod5)))) &&
                   ((distribute1 $ fromJust (parseRing "(2 + 3) * (1 + 4)" :: Maybe (RingExpr Mod5))) == Add (Add (Mul (Lit (MkMod 2)) (Lit (MkMod 1))) (Mul (Lit (MkMod 3)) (Lit (MkMod 1)))) (Add (Mul (Lit (MkMod 2)) (Lit (MkMod 4))) (Mul (Lit (MkMod 3)) (Lit (MkMod 4)))))
+
+-- Define a type calss to for the common behavior
+class RingFunctor f where
+    rmap :: (RingExpr a -> f a) -> (RingExpr a) -> f a
+
+instance RingFunctor RingExpr where
+  rmap f (AddInv x) = AddInv (rmap f (f x))
+  rmap f (Mul x y) = Mul (rmap f (f x)) (rmap f (f y))
+  rmap f (Add x y) = Add (rmap f (f x)) (rmap f (f y))
+  rmap _ (Lit a) = Lit a
+  rmap _ AddId = AddId
+  rmap _ MulId = MulId
+
+-- Implementing distribute using type class
+distribute2 :: RingExpr a -> RingExpr a
+distribute2 (Mul x (Add y z)) = distribute2 (Add (Mul x y) (Mul x z))
+distribute2 (Mul (Add x y) z) = distribute2 (Add (Mul x z) (Mul y z))
+distribute2 x =  rmap distribute2 x
+
+distribute2Works :: Bool
+distribute2Works = ((eval $ fromJust (parseRing "3 * (4 + 9)" :: Maybe (RingExpr Integer))) == (eval $ distribute2 $ fromJust (parseRing "3 * (4 + 9)" :: Maybe (RingExpr Integer)))) &&
+                  (fromJust (parseRing "3 * (4 + 9)") == (eval $ distribute2 $ fromJust (parseRing "3 * (4 + 9)" :: Maybe (RingExpr Integer)))) &&
+                  ((eval $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer))) == (eval $ distribute2 $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer)))) &&
+                  (fromJust (parseRing "(3 + 4) * 9") == (eval $ distribute2 $ fromJust (parseRing "(3 + 4) * 9" :: Maybe (RingExpr Integer)))) &&
+                  ((distribute2 $ fromJust (parseRing "(2 + 3) * (5 + 4)" :: Maybe (RingExpr Integer))) == Add (Add (Mul (Lit 2) (Lit 5)) (Mul (Lit 3) (Lit 5))) (Add (Mul (Lit 2) (Lit 4)) (Mul (Lit 3) (Lit 4))))
+
+-- Implementing squashMulId using type class
+squashMulId2 :: (Ring a, Eq a) => RingExpr a -> RingExpr a
+squashMulId2 (Mul MulId x) = squashMulId2 x
+squashMulId2 (Mul x MulId) = squashMulId2 x
+squashMulId2 (Mul (Lit a) x) | a == mulId = squashMulId2 x
+squashMulId2 (Mul x (Lit a)) | a == mulId = squashMulId2 x
+squashMulId2 (Mul x y) = squashMulId2 (Mul (squashMulId2 x) (squashMulId2 y))
+squashMulId2 x = traverse squashMulId2 x
+
+squashMulId2Works :: Bool
+squashMulId2Works = ((eval $ fromJust (parseRing "3 * 1" :: Maybe (RingExpr Integer))) == (eval $ squashMulId2 $ fromJust (parseRing "3 * 1" :: Maybe (RingExpr Integer)))) &&
+                  (fromJust (parseRing "1 * (4 + 9)") == (eval $ squashMulId2 $ fromJust (parseRing "1 * (4 + 9)" :: Maybe (RingExpr Integer)))) &&
+                  ((eval $ fromJust (parseRing "(3 + 4) * 1 + 2 * 1" :: Maybe (RingExpr Integer))) == (eval $ squashMulId2 $ fromJust (parseRing "(3 + 4) * 1 + 2 * 1" :: Maybe (RingExpr Integer)))) &&
+                  (fromJust (parseRing "1 * 9") == (eval $ squashMulId2 $ fromJust (parseRing "9" :: Maybe (RingExpr Integer)))) &&
+                  ((squashMulId2 $ fromJust (parseRing "2 * 1 + 1 * 3" :: Maybe (RingExpr Integer))) == Add (Lit 2) (Lit 3)) &&
+                  ((squashMulId2 $ fromJust (parseRing "1 * 1" :: Maybe (RingExpr Integer))) == (Lit 1)) &&
+                  ((squashMulId2 $ fromJust (parseRing "1 * 1 + 1 * (1 * 1)" :: Maybe (RingExpr Integer))) == Add (Lit 1) (Lit 1))
