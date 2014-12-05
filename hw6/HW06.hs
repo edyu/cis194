@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
+{-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE DeriveGeneric, OverloadedStrings #-}
 {-
 Name: Ed Yu
 Collaborators:
@@ -6,3 +7,11 @@ Notes:
 -}
 
 module HW06 where
+
+import Data.Aeson
+import Data.Monoid
+import GHC.Generics
+
+import qualified Data.ByteString.Lazy.Char8 as B
+import qualified Data.Text                  as T
+import qualified Data.Text.IO               as T
