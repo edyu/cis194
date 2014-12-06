@@ -15,3 +15,11 @@ import GHC.Generics
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Text                  as T
 import qualified Data.Text.IO               as T
+
+-- Exercise 1
+ynToBool :: Value -> Value
+ynToBool (String "Y") = Bool   True
+ynToBool (String "N") = Bool   False
+ynToBool (Object x)   = Object (fmap ynToBool x)
+ynToBool (Array x)    = Array  (fmap ynToBool x)
+ynToBool x            = x
