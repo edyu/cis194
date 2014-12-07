@@ -44,3 +44,11 @@ parseMarkets bs = case fmap fromJSON $ parseData bs :: Either String (Result [Ma
                   Right r -> case r of
                       (Success m) -> Right m
                       (Error err) -> Left err
+
+-- Exercise 4
+loadData :: IO [Market]
+loadData = do
+  bs <- B.readFile "markets.json"
+  case parseMarkets bs of
+      Left  e -> fail e
+      Right m -> return m
