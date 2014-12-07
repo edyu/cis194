@@ -9,6 +9,7 @@ Notes:
 module HW06 where
 
 import Data.Aeson
+import Data.List (sort)
 import Data.Monoid
 import GHC.Generics
 
@@ -52,3 +53,20 @@ loadData = do
   case parseMarkets bs of
       Left  e -> fail e
       Right m -> return m
+
+-- Exercise 5
+data OrdList a = OrdList { getOrdList :: [a] }
+  deriving (Eq, Show)
+
+instance Ord a => Monoid (OrdList a) where
+  mempty  = OrdList { getOrdList = [] }
+  mappend xs ys = OrdList { getOrdList = sort $ (getOrdList xs) ++ (getOrdList ys) }
+
+evens :: OrdList Integer
+evens = OrdList [2,4,6]
+
+odds :: OrdList Integer
+odds = OrdList [1,3,5]
+
+combined :: OrdList Integer
+combined = evens <> odds
