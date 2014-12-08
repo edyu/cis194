@@ -85,3 +85,8 @@ compose2 = (.) . (.)
 firstFound :: Searcher (Maybe Market)
 firstFound = compose2 getFirst (search toFirst)
   where toFirst m = First (Just m)
+
+-- Exercise 8
+lastFound :: Searcher (Maybe Market)
+lastFound = compose2 getLast (search toLast)
+  where toLast m = Last (Just m)
