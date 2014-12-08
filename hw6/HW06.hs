@@ -77,3 +77,11 @@ search :: Monoid m => (Market -> m) -> Searcher m
 search _ _ [] = mempty
 search to_m t (m:ms) | t `T.isInfixOf` (marketname m) = to_m m <> search to_m t ms
                      | otherwise = search to_m t ms
+
+-- Exercise 7
+compose2 :: (c -> d) -> (a -> b -> c) -> a -> b -> d
+compose2 = (.) . (.)
+
+firstFound :: Searcher (Maybe Market)
+firstFound = compose2 getFirst (search toFirst)
+  where toFirst m = First (Just m)
