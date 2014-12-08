@@ -16,7 +16,6 @@ import GHC.Generics
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Text                  as T
 import qualified Data.Text.IO               as T
-import qualified Data.Vector                as V
 
 -- Exercise 1
 ynToBool :: Value -> Value
@@ -70,3 +69,11 @@ odds = OrdList [1,3,5]
 
 combined :: OrdList Integer
 combined = evens <> odds
+
+-- Exercise 6
+type Searcher m = T.Text -> [Market] -> m
+
+search :: Monoid m => (Market -> m) -> Searcher m
+search _ _ [] = mempty
+search to_m t (m:ms) | t `T.isInfixOf` (marketname m) = to_m m <> search to_m t ms
+                     | otherwise = search to_m t ms
