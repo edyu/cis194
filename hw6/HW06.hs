@@ -90,3 +90,7 @@ firstFound = compose2 getFirst (search toFirst)
 lastFound :: Searcher (Maybe Market)
 lastFound = compose2 getLast (search toLast)
   where toLast m = Last (Just m)
+
+-- Exercise 9
+allFound :: Searcher [Market]
+allFound = search (:[])
