@@ -94,3 +94,8 @@ lastFound = compose2 getLast (search toLast)
 -- Exercise 9
 allFound :: Searcher [Market]
 allFound = search (:[])
+
+-- Exercise 10
+numberFound :: Searcher Int
+numberFound = compose2 getSum (search toSum)
+  where toSum _ = Sum 1
