@@ -99,3 +99,17 @@ allFound = search (:[])
 numberFound :: Searcher Int
 numberFound = compose2 getSum (search toSum)
   where toSum _ = Sum 1
+
+-- Exercise 11
+instance Eq Market where
+    (==) m n = (marketname m) == (marketname n) &&
+               (x m) == (x n) && (y m) == (y n) &&
+               (state m) == (state n)
+
+instance Ord Market where
+    compare m n | (y n) `compare` (y m) == EQ = compare (x m) (x n)
+                | otherwise                   = compare (y n) (y m)
+
+orderedNtoS :: Searcher [Market]
+orderedNtoS = compose2 getOrdList (search to_ord)
+  where to_ord m = OrdList (m : [])
