@@ -48,18 +48,20 @@ parseMarkets bs = case fmap fromJSON $ parseData bs :: Either String (Result [Ma
 -- Exercise 4
 loadData :: IO [Market]
 loadData = do
-  bs <- B.readFile "markets.json"
-  case parseMarkets bs of
-      Left  e -> fail e
-      Right m -> return m
+    bs <- B.readFile "markets.json"
+    case parseMarkets bs of
+        Left  e -> fail e
+        Right m -> return m
 
 -- Exercise 5
 data OrdList a = OrdList { getOrdList :: [a] }
   deriving (Eq, Show)
 
 instance Ord a => Monoid (OrdList a) where
-  mempty  = OrdList { getOrdList = [] }
-  mappend xs ys = OrdList { getOrdList = sort $ (getOrdList xs) ++ (getOrdList ys) }
+    mempty  = OrdList { getOrdList = [] }
+    mappend xs ys = OrdList { getOrdList = sort $ (getOrdList xs) ++ (getOrdList ys) }
+    mconcat [] = mempty
+    mconcat xs = OrdList { getOrdList = sort $ concat $ map getOrdList xs }
 
 evens :: OrdList Integer
 evens = OrdList [2,4,6]
@@ -74,9 +76,15 @@ combined = evens <> odds
 type Searcher m = T.Text -> [Market] -> m
 
 search :: Monoid m => (Market -> m) -> Searcher m
+{-
 search _ _ [] = mempty
 search to_m t (m:ms) | t `T.isInfixOf` (marketname m) = to_m m <> search to_m t ms
                      | otherwise = search to_m t ms
+-}
+search to_m s xs = mconcat $ search' s xs
+  where search' _ [] = []
+        search' t (m:ms) | t `T.isInfixOf` (marketname m) = to_m m : search' t ms
+                         | otherwise = search' t ms
 
 -- Exercise 7
 compose2 :: (c -> d) -> (a -> b -> c) -> a -> b -> d
@@ -107,9 +115,12 @@ instance Eq Market where
                (state m) == (state n)
 
 instance Ord Market where
-    compare m n | (y n) `compare` (y m) == EQ = compare (x m) (x n)
+    compare m n | isNaN (y m) && isNaN (y n)  = compare (marketname m) (marketname n)
+                | isNaN (y m)                 = GT
+                | isNaN (y n)                 = LT
+                | (y n) `compare` (y m) == EQ = compare (x m) (x n)
                 | otherwise                   = compare (y n) (y m)
 
 orderedNtoS :: Searcher [Market]
 orderedNtoS = compose2 getOrdList (search to_ord)
-  where to_ord m = OrdList (m : [])
+  where to_ord m = OrdList [m]
