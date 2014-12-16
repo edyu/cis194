@@ -50,3 +50,18 @@ streamMap f (Cons x y) = Cons (f x) (streamMap f y)
 -- 5c
 streamFromSeed :: (a -> a) -> a -> Stream a
 streamFromSeed f x = Cons x (streamFromSeed f (f x))
+
+-- Exercise 6
+-- 6a
+nats :: Stream Integer
+nats = streamFromSeed (+1) 0
+
+-- 6b
+{- ruler number
+[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,...]
+[0,1,0,2,0,1,0,3,0,1,2,0,1,0,4,...]
+-}
+ruler :: Stream Integer
+ruler = streamMap rulerInt (streamMap (+1) nats)
+  where rulerInt n | n `mod` 2 /= 0 = 0
+        rulerInt n = 1 + (rulerInt (n `div` 2))
