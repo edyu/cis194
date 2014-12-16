@@ -20,3 +20,9 @@ fibs1 = map fib [0..]
 -- Exercise 2
 fibs2 :: [Integer]
 fibs2 = [0,1] ++ (map (\(x,y) -> x + y) $ zip fibs2 (tail fibs2))
+
+-- Exercise 3
+data Stream a = Cons a (Stream a)
+
+streamToList :: Stream a -> [a]
+streamToList (Cons x xs) = x : streamToList xs
