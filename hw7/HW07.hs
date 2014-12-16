@@ -37,3 +37,16 @@ instance Show a => Show (Stream a) where
       where showPrefix :: Show a => Integer -> Stream a -> String
             showPrefix 0 _ = "...]"
             showPrefix n (Cons x xs) = show x ++ "," ++ (showPrefix (n-1) xs)
+
+-- Exercise 5
+-- 5a
+streamRepeat :: a -> Stream a
+streamRepeat x = Cons x (streamRepeat x)
+
+-- 5b
+streamMap :: (a -> b) -> Stream a -> Stream b
+streamMap f (Cons x y) = Cons (f x) (streamMap f y)
+
+-- 5c
+streamFromSeed :: (a -> a) -> a -> Stream a
+streamFromSeed f x = Cons x (streamFromSeed f (f x))
