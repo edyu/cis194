@@ -26,3 +26,14 @@ data Stream a = Cons a (Stream a)
 
 streamToList :: Stream a -> [a]
 streamToList (Cons x xs) = x : streamToList xs
+
+-- Exercise 4
+listToStream:: [a] -> Stream a
+listToStream (x:xs) = Cons x (listToStream xs)
+listToStream [] = error "empty"
+
+instance Show a => Show (Stream a) where
+    show s = "[" ++ (showPrefix 20 s)
+      where showPrefix :: Show a => Integer -> Stream a -> String
+            showPrefix 0 _ = "...]"
+            showPrefix n (Cons x xs) = show x ++ "," ++ (showPrefix (n-1) xs)
