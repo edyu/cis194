@@ -81,3 +81,8 @@ ruler1 = myruler [0..]
 randomList :: (Random a, RandomGen g) => g -> [a]
 randomList g = let (a, g') = random g in
                a : randomList g'
+
+-- Exercise 8
+randomInts  :: Int -> [Int]
+randomInts n = let g = mkStdGen 37 in
+               take n $ randomList g
