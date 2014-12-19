@@ -86,3 +86,12 @@ randomList g = let (a, g') = random g in
 randomInts  :: Int -> [Int]
 randomInts n = let g = mkStdGen 37 in
                take n $ randomList g
+
+-- Exercise 9
+minMax :: [Int] -> Maybe (Int, Int)
+minMax [] = Nothing
+minMax xs = Just (minimum xs, maximum xs)
+
+main :: IO ()
+main = print $ show $ minMax $ randomInts 1000000
+-- 292 MB total memory in use
