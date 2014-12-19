@@ -37,6 +37,7 @@ instance Show a => Show (Stream a) where
       where showPrefix :: Show a => Integer -> Stream a -> String
             showPrefix 0 _ = "...]"
             showPrefix n (Cons x xs) = show x ++ "," ++ (showPrefix (n-1) xs)
+--    show s = show (take 20 (streamToList s))
 
 -- Exercise 5
 -- 5a
@@ -45,7 +46,7 @@ streamRepeat x = Cons x (streamRepeat x)
 
 -- 5b
 streamMap :: (a -> b) -> Stream a -> Stream b
-streamMap f (Cons x y) = Cons (f x) (streamMap f y)
+streamMap f (Cons x xs) = Cons (f x) (streamMap f xs)
 
 -- 5c
 streamFromSeed :: (a -> a) -> a -> Stream a
@@ -59,9 +60,17 @@ nats = streamFromSeed (+1) 0
 -- 6b
 {- ruler number
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,...]
-[0,1,0,2,0,1,0,3,0,1,2,0,1,0,4,...]
+[0,1,0,2,0,1,0,3,0,1, 0, 2, 0, 1, 0, 4,...]
 -}
 ruler :: Stream Integer
 ruler = streamMap rulerInt (streamMap (+1) nats)
   where rulerInt n | n `mod` 2 /= 0 = 0
         rulerInt n = 1 + (rulerInt (n `div` 2))
+
+interleaveStreams :: Stream a -> Stream a -> Stream a
+interleaveStreams (Cons x xs) ys = Cons x (interleaveStreams ys xs)
+
+ruler1 :: Stream Integer
+ruler1 = myruler [0..]
+  where myruler (x:xs) = interleaveStreams (streamRepeat x) (myruler xs)
+        myruler x      = listToStream x
