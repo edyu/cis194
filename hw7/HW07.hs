@@ -7,6 +7,8 @@ Notes:
 
 module HW07 where
 
+import System.Random
+
 -- Exercise 1
 fib :: Integer -> Integer
 fib 0 = 0
@@ -74,3 +76,8 @@ ruler1 :: Stream Integer
 ruler1 = myruler [0..]
   where myruler (x:xs) = interleaveStreams (streamRepeat x) (myruler xs)
         myruler x      = listToStream x
+
+-- Exercise 7
+randomList :: (Random a, RandomGen g) => g -> [a]
+randomList g = let (a, g') = random g in
+               a : randomList g'
