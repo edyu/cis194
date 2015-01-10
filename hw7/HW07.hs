@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
+--{-# OPTIONS_GHC -Wall -fno-warn-missing-methods #-}
 {-
 Name: Ed Yu
 Collaborators:
@@ -109,3 +110,25 @@ minMax1 (x:xs) = Just (getMinMax x x xs)
 main :: IO ()
 main = print $ show $ minMax1 $ randomInts 1000000
 -- 1 MB total memory in use
+
+-- Exercise 11
+data Matrix = Matrix (Integer, Integer) (Integer, Integer)
+  deriving (Show, Eq)
+
+mmap :: (Integer -> Integer) -> Matrix -> Matrix
+mmap f (Matrix (x1, y1) (x2, y2)) = Matrix (f x1, f y1) (f x2, f y2)
+
+instance Num Matrix where
+    (*) (Matrix (x1, y1) (x2, y2)) (Matrix (u1, v1) (u2, v2)) = Matrix (x1 * u1 + y1 * u2, x1 * v1 + y1 * v2) (x2 * u1 + y2 * u2, x2 * v1 + y2 * v2)
+    (+) (Matrix (x1, y1) (x2, y2)) (Matrix (u1, v1) (u2, v2)) = Matrix (x1 + u1, y1 + v1) (x2 + u2, y2 + v2)
+    fromInteger x = Matrix (x, 0) (0, x)
+    negate m = mmap negate m
+    abs m = mmap abs m
+    signum m = mmap signum m
+
+fib4 :: Integer -> Integer
+fib4 0 = 0
+fib4 n = let f = Matrix (1, 1) (1, 0)
+             fn = f ^ n
+         in case fn of
+                Matrix (_, x) _ -> x
