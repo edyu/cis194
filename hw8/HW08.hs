@@ -24,3 +24,10 @@ stringFitsFormat = isJust . go
         strip n xs = stripPrefix (take n $ repeat 'a') xs
         done [] = Just ""
         done xs = go xs
+
+-- Exercise 2
+specialNumbers :: [Int]
+specialNumbers = [ n | n <- [1..100]
+                     , n `mod` 5 == 0
+                     , n `mod` 7 /= 0
+                 ]
