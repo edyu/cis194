@@ -92,6 +92,20 @@ minMax :: [Int] -> Maybe (Int, Int)
 minMax [] = Nothing
 minMax xs = Just (minimum xs, maximum xs)
 
+{-
 main :: IO ()
 main = print $ show $ minMax $ randomInts 1000000
+-}
 -- 292 MB total memory in use
+
+-- Exercise 10
+minMax1 :: [Int] -> Maybe (Int, Int)
+minMax1 []     = Nothing
+minMax1 (x:xs) = Just (getMinMax x x xs)
+  where getMinMax u v []     = (u, v)
+        getMinMax u v (y:[]) =  (min u y, max v y)
+        getMinMax u v (y:ys) = u `seq` v `seq` getMinMax (min u y) (max v y) ys
+
+main :: IO ()
+main = print $ show $ minMax1 $ randomInts 1000000
+-- 1 MB total memory in use
