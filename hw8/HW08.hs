@@ -10,6 +10,7 @@ module HW08 where
 import Data.List  (stripPrefix)
 import Data.Maybe (isJust)
 import Text.Read  (readMaybe)
+import Control.Monad.Random
 
 -- Exercise 1
 stringFitsFormat :: String -> Bool
@@ -31,3 +32,15 @@ specialNumbers = [ n | n <- [1..100]
                      , n `mod` 5 == 0
                      , n `mod` 7 /= 0
                  ]
+
+-- Exercise 3
+type StdRand = Rand StdGen
+
+type Army = Int
+data ArmyCounts = ArmyCounts { attackers :: Army, defenders :: Army }
+  deriving Show
+
+type DieRoll = Int
+
+dieRoll :: StdRand DieRoll
+dieRoll = getRandomR (1, 6)
