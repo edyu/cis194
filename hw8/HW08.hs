@@ -75,8 +75,7 @@ battle :: ArmyCounts -> StdRand ArmyCounts
 battle ac = do ad <- dice attacks
                dd <- dice defends
                let br = battleResults ad dd
-               return ArmyCounts { attackers = (attackers ac) + (attackers br),
-                                   defenders = (defenders ac) + (defenders br) }
+               return $ ac <> br
   where attacks = case attackers ac of
                        n | n > 3 -> 3
                        n | n > 0 -> n - 1
