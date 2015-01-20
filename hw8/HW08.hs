@@ -62,3 +62,20 @@ battleResults as ds = initial <> (foldr fight initial dies)
                                                          defenders = 0 }
                         | otherwise = ac <> ArmyCounts { attackers = 0,
                                                          defenders = -1 }
+
+-- Exercise 5
+battle :: ArmyCounts -> StdRand ArmyCounts
+battle ac = do ad <- dice attacks
+               dd <- dice defends
+               let br = battleResults ad dd
+               return ArmyCounts { attackers = (attackers ac) + (attackers br),
+                                   defenders = (defenders ac) + (defenders br) }
+  where attacks = case attackers ac of
+                       n | n > 3 -> 3
+                       n | n > 0 -> n - 1
+                       _         -> 0
+        defends = case defenders ac of
+                       n | n >= 2 -> 2
+                       n | n == 1 -> 1
+                       _          -> 0
+        dice n = sequence (replicate n dieRoll)
