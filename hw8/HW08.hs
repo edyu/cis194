@@ -39,7 +39,7 @@ type StdRand = Rand StdGen
 
 type Army = Int
 data ArmyCounts = ArmyCounts { attackers :: Army, defenders :: Army }
-  deriving Show
+  deriving (Show, Eq)
 
 type DieRoll = Int
 
@@ -48,20 +48,27 @@ dieRoll = getRandomR (1, 6)
 
 -- Exercise 4
 instance Monoid ArmyCounts where
-    mempty  = ArmyCounts { attackers = 0, defenders = 0 }
-    mappend x y = ArmyCounts { attackers = (attackers x) - (attackers y),
-                               defenders = (defenders x) - (defenders y) }
+    mempty      = ArmyCounts { attackers = 0, defenders = 0 }
+    mappend x y = ArmyCounts { attackers = (attackers x) + (attackers y),
+                               defenders = (defenders x) + (defenders y) }
 
 battleResults :: [DieRoll] -> [DieRoll] -> ArmyCounts
-battleResults as ds = initial <> (foldr fight initial dies)
+battleResults as ds = foldr fight mempty dies
   where sortR = sortBy (flip compare)
         dies = zip (sortR as) (sortR ds)
-        initial = ArmyCounts { attackers = (length as),
-                               defenders = (length ds) }
-        fight (a, d) ac | a <= d    = ac <> ArmyCounts { attackers = -1,
-                                                         defenders = 0 }
-                        | otherwise = ac <> ArmyCounts { attackers = 0,
-                                                         defenders = -1 }
+        fight (a, d) ac
+            | a <= d    = ac <> ArmyCounts { attackers = -1,
+                                             defenders = 0 } 
+            | otherwise = ac <> ArmyCounts { attackers = 0,
+                                             defenders = -1 }
+
+battleResultsWorks :: Bool
+battleResultsWorks = battleResults [3,6,4] [5,5] == ArmyCounts { attackers = -1,
+                                                                 defenders = -1 } &&
+                     battleResults [3,6,4] [5,6] == ArmyCounts { attackers = -2,
+                                                                 defenders = 0 } &&
+                     battleResults [4] [3,2]     == ArmyCounts { attackers = 0,
+                                                                 defenders = -1 }
 
 -- Exercise 5
 battle :: ArmyCounts -> StdRand ArmyCounts
