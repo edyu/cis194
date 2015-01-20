@@ -79,3 +79,11 @@ battle ac = do ad <- dice attacks
                        n | n == 1 -> 1
                        _          -> 0
         dice n = sequence (replicate n dieRoll)
+
+-- Exercise 6
+invade :: ArmyCounts -> StdRand ArmyCounts
+invade ac = do bc <- battle ac
+               case bc of
+                    ArmyCounts { attackers = x } | x < 2  -> return bc
+                    ArmyCounts { defenders = x } | x <= 0 -> return bc
+                    _                                     -> invade bc
