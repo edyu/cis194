@@ -87,3 +87,19 @@ invade ac = do bc <- battle ac
                     ArmyCounts { attackers = x } | x < 2  -> return bc
                     ArmyCounts { defenders = x } | x <= 0 -> return bc
                     _                                     -> invade bc
+
+-- Exercise 7
+(//) :: Int -> Int -> Double
+a // b = fromIntegral a / fromIntegral b
+
+successProb:: ArmyCounts -> StdRand Double
+successProb ac = tryInvade count 0
+  where count = 1000
+        tryInvade n p
+            | n == 0    = return (p // count)
+            | otherwise = do let m = n - 1
+                             b <- invade ac
+                             case b of
+                                  ArmyCounts { defenders = x }
+                                      | x <= 0    -> tryInvade m (p + 1)
+                                      | otherwise -> tryInvade m p
