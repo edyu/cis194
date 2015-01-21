@@ -67,3 +67,12 @@ prop_9 a b c = mul (add b c) a == add (mul b a) (mul c a)
 
 prop_10 :: (Ring a, Eq a) => a -> a -> a -> Bool
 prop_10 a b c = if a == b && b == c then a == c else a /= b || b /= c
+
+-- Exercise 4
+prop_ring :: (Ring a, Eq a) => a -> a -> a -> Property
+prop_ring a b c = (conjoin $ [f a b c | f <- [prop_1, prop_6, prop_8, prop_9, prop_10]
+                             ]) .&&.
+                  (conjoin $ [f x | f <- [prop_2, prop_3, prop_4, prop_7]
+                                  , x <- [a, b, c]
+                             ]) .&&.
+                  prop_5 a b
