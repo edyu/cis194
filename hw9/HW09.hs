@@ -76,3 +76,9 @@ prop_ring a b c = (conjoin $ [f a b c | f <- [prop_1, prop_6, prop_8, prop_9, pr
                                   , x <- [a, b, c]
                              ]) .&&.
                   prop_5 a b
+
+-- Exercise 5
+-- Bool is not a proper ring.
+-- Violates prop_4 or #3 of the axioms where
+--   For each a in R there exists −a in R such that
+--     a + (−a) = (−a) + a = 0 (−a is the additive inverse of a).
