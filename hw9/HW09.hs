@@ -23,8 +23,16 @@ genMod5 = do
 
 instance Arbitrary Mat2x2 where
     arbitrary = genMat2x2
+    shrink = shrinkMat2x2
 
 genMat2x2 :: Gen Mat2x2
 genMat2x2 = do
-    [x, y, z, w] <- replicateM 4 arbitrary
-    return $ MkMat x y z w
+    [a, b, c, d] <- replicateM 4 arbitrary
+    return $ MkMat a b c d
+
+-- Exercise 2
+shrinkMat2x2 :: Mat2x2 -> [Mat2x2]
+shrinkMat2x2 (MkMat a b c d) = [MkMat x y z w | x <- shrinkIntegral a
+                                              , y <- shrinkIntegral b
+                                              , z <- shrinkIntegral c
+                                              , w <- shrinkIntegral d]
