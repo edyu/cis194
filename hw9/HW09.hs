@@ -10,7 +10,9 @@ module HW09 where
 import Test.QuickCheck
 
 import Control.Monad (replicateM)
+
 import Ring
+import BST
 
 -- Exercise 1
 instance Arbitrary Mod5 where
@@ -82,3 +84,24 @@ prop_ring a b c = (conjoin $ [f a b c | f <- [prop_1, prop_6, prop_8, prop_9, pr
 -- Violates prop_4 or #3 of the axioms where
 --   For each a in R there exists −a in R such that
 --     a + (−a) = (−a) + a = 0 (−a is the additive inverse of a).
+
+-- Exercise 6
+isBSTBetween' :: Ord a => Maybe a        -- ^ lower bound, if one exists
+              -> Maybe a                 -- ^ upper bound, if one exists
+              -> BST a                   -- ^ tree to test
+              -> Bool
+isBSTBetween' _       _       Leaf = True
+isBSTBetween' m_lower m_upper (Node left x right)
+    = isBSTBetween' m_lower  (Just x) left  &&
+      isBSTBetween' (Just x) m_upper  right &&
+      case m_lower of
+          Just lower -> lower <= x
+          Nothing    -> True
+      &&
+      case m_upper of
+          Just upper -> x <= upper
+          Nothing    -> True
+
+-- | Is this a valid BST?
+isBST' :: Ord a => BST a -> Bool
+isBST' = isBSTBetween' Nothing Nothing
