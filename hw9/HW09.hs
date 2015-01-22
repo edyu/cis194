@@ -127,4 +127,18 @@ instance (Arbitrary a, Random a, Ord a) => Arbitrary (BST a) where
     arbitrary = do
         lb <- arbitrary
         ub <- suchThat arbitrary (lb <)
-        genBST lb ub
+        genBST' lb ub
+
+-- Exercise 8
+genBST' :: (Arbitrary a, Random a, Ord a) => a -> a -> Gen (BST a)
+genBST' lb ub = sized $ \size -> do
+    frequency [ (1, return Leaf)
+              , (size, do x <- choose (lb, ub)
+                          lt <- if lb == x
+                                    then return Leaf
+                                    else genBST' lb x
+                          ut <- if ub == x
+                                    then return Leaf
+                                    else genBST' x ub
+                          return $ Node lt x ut)
+              ]
