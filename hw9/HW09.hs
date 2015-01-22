@@ -10,6 +10,7 @@ module HW09 where
 import Test.QuickCheck
 
 import Control.Monad (replicateM)
+import System.Random
 
 import Ring
 import BST
@@ -105,3 +106,25 @@ isBSTBetween' m_lower m_upper (Node left x right)
 -- | Is this a valid BST?
 isBST' :: Ord a => BST a -> Bool
 isBST' = isBSTBetween' Nothing Nothing
+
+-- Exercise 7
+genBST :: (Arbitrary a, Random a, Ord a) => a -> a -> Gen (BST a)
+genBST lb ub = do
+    make_leaf <- arbitrary
+    if make_leaf
+        then return Leaf
+        else do
+            x <- choose (lb, ub)
+            lt <- if lb == x
+                      then return Leaf
+                      else genBST lb x
+            ut <- if ub == x
+                      then return Leaf
+                      else genBST x ub
+            return $ Node lt x ut
+
+instance (Arbitrary a, Random a, Ord a) => Arbitrary (BST a) where
+    arbitrary = do
+        lb <- arbitrary
+        ub <- suchThat arbitrary (lb <)
+        genBST lb ub

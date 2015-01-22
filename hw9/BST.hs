@@ -47,6 +47,7 @@ getElements (Node left x right) = getElements left ++ x : getElements right
 -- TESTING CODE. (Students aren't expected to understand this yet, but it
 -- might be interesting to read, anyway!)
 
+{-
 instance Arbitrary a => Arbitrary (BST a) where
   arbitrary = sized mk_tree
 
@@ -66,3 +67,4 @@ prop_ordered x = isBST compare x == is_sorted (getElements x)
 
 test :: IO ()
 test = quickCheck prop_ordered
+-}
