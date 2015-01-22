@@ -11,6 +11,8 @@ import Test.QuickCheck
 
 import Control.Monad (replicateM)
 import System.Random
+import Test.HUnit
+--import Test.QuickCheck
 
 import Ring
 import BST
@@ -142,3 +144,27 @@ genBST' lb ub = sized $ \size -> do
                                     else genBST' x ub
                           return $ Node lt x ut)
               ]
+
+-- Exercise 9
+parserTests :: Test
+parserTests = TestList [ "one digit integer" ~:
+                         parseAll "3" ~?= Just (3 :: Integer)
+                       , "multiple digits integer" ~:
+                         parseAll "45" ~?= Just (45 :: Integer)
+                       , "negative integer" ~:
+                         parseAll "-1" ~?= Just (-1 :: Integer)
+                       , "mod5 number" ~:
+                         parseAll "1" ~?= Just (MkMod 1)
+                       , "mod5 wrap" ~:
+                         parseAll "5" ~?= Just (MkMod 0)
+                       , "boolean true" ~:
+                         parseAll "True" ~?= Just True
+                       , "boolean false" ~:
+                         parseAll "False" ~?= Just False
+                       , "bad boolean" ~:
+                         parseAll "false" ~?= (Nothing :: Maybe Bool)
+                       , "mat2x2 all zeros" ~:
+                         parseAll "[[0,0][0,0]]" ~?= Just (MkMat 0 0 0 0)
+                       , "mat2x2 all integers" ~:
+                         parseAll "[[1,-2][3,-4]]" ~?= Just (MkMat 1 (-2) 3 (-4))
+                       ]
