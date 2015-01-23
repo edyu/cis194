@@ -5,14 +5,19 @@ Collaborators:
 Notes:
 -}
 
-module HW10 where
+module Main where
 
-import Graphics.Gloss
-import Data.Monoid
+import Pong
 
-main =  display (InWindow "Hello, world!" (200, 200) (200, 200))
+
+main :: IO ()
+main = playPong
+
+{--
+main =  display (InWindow "Pong" (640, 480) (500, 500))
                 white
                 (circle 50 <>
                  (translate (-20) 10    $ circle 10) <>
                  (translate 20    10    $ circle 10) <>
                  (translate 0     (-15) $ scale 1 0.7 $ arc 180 360 20))
+--}
