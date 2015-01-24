@@ -11,23 +11,17 @@ import Graphics.Gloss
 background :: Color
 background = white
 
-paddleColor :: Color
-paddleColor = blue
-
-ballColor :: Color
-ballColor = red
-
 -- | A location within a field is an x-coord and a y-coord
 type Location = (Int, Int)
 
 -- | The origin point of the ball, at the center
-ballOrigin :: Location
-ballOrigin = (0, 0)
+origin :: Location
+origin = (0, 0)
 
 -- | The total size of the window, in pixels
 windowWidth, windowHeight :: Int
-windowWidth = 400
-windowHeight = 400
+windowWidth = 640
+windowHeight = 480
 
 -- | The total size of the window, in pixels, stored as @Float@s
 windowWidthF, windowHeightF :: Float
