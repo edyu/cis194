@@ -18,10 +18,22 @@ type Location = (Int, Int)
 origin :: Location
 origin = (0, 0)
 
+-- | The base size on which the ball and paddle sizes are based
+baseSize :: Int
+baseSize = 20
+
 -- | The total size of the window, in pixels
 windowWidth, windowHeight :: Int
-windowWidth = 640
+windowWidth  = 640
 windowHeight = 480
+
+-- | The starting point of the paddle on the left
+leftMiddle :: Location
+leftMiddle = (0, windowHeight `div` 2)
+
+-- | The starting point of the paddle on the right
+rightMiddle :: Location
+rightMiddle = (windowWidth-baseSize, windowHeight `div` 2)
 
 -- | The total size of the window, in pixels, stored as @Float@s
 windowWidthF, windowHeightF :: Float

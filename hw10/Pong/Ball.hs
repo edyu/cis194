@@ -1,6 +1,6 @@
 {- Pong
 
-   Defines Ball
+   Definition and operations on Pong ball
 -}
 
 module Pong.Ball where
@@ -9,12 +9,11 @@ import Pong.Constants
 
 import Graphics.Gloss
 
-import Data.Monoid
 
 -- | The ball
-data Ball = Ball { ball_loc   :: Location
-                 , ball_color :: Color
-                 , ball_size  :: Float
+data Ball = Ball { ball_loc    :: Location
+                 , ball_color  :: Color
+                 , ball_radius :: Float
                  }
 
 -- | Get the location of the ball
@@ -26,8 +25,8 @@ ballColor :: Ball -> Color
 ballColor ball = ball_color ball
 
 -- | Get the radius of the ball
-ballSize :: Ball -> Float
-ballSize ball = ball_size ball
+ballRadius :: Ball -> Float
+ballRadius ball = ball_radius ball
 
 -- | Move the ball
 moveBall :: (Location -> Location) -> Ball -> Ball
@@ -38,5 +37,5 @@ renderBall :: Ball -> Picture
 renderBall ball =
     color (ballColor ball) (thickCircle thickness radius)
   where
-    radius = ballSize ball
+    radius = ballRadius ball
     thickness = radius / 2
