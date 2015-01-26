@@ -31,7 +31,9 @@ ballRadius :: Ball -> Float
 ballRadius ball = ball_radius ball
 
 ballOut :: Ball -> Bool
-ballOut Ball { ball_location = (x, _) } = x < 0 || x > windowWidth
+ballOut b@(Ball { ball_location = (x, _) })
+    = let r = round $ ballRadius b
+      in  x < -r  || x > windowWidth + r
 
 newBall :: RandomGen g => g -> (Ball, g)
 newBall gen
@@ -66,6 +68,11 @@ moveBall b@(Ball { ball_location = loc
             dx = round $ vx * d
             r  = round $ ballRadius b
         in  bounceBall $ b { ball_location = (x + dx, y) }
+
+reboundBall :: Ball -> Ball
+reboundBall b@(Ball { ball_velocity = vec })
+    = let (vx, vy) = vec
+      in  b { ball_velocity = (-vx, vy) }
 
 bounceBall :: Ball -> Ball
 bounceBall b@(Ball { ball_location = loc

@@ -59,22 +59,25 @@ step elapsed w@(World { w_state  = Playing
                       , w_down   = down
                       })
     | up && validPaddle paddle_moved_up
-    = w { w_ball   = moveBall ball
+    = w { w_ball   = ball_moved
         , w_paddle = paddle_moved_up
         }
     | down && validPaddle paddle_moved_down
-    = w { w_ball   = moveBall ball
+    = w { w_ball   = ball_moved
         , w_paddle = paddle_moved_down
         }
     | otherwise
     = w { w_state  = if (gameEnded ball) then Ended else Playing
-        , w_ball   = moveBall ball
+        , w_ball   = ball_moved
         , w_paddle = paddle
         , w_guard  = guard
         }
   where
     paddle_moved_up   = paddleUp paddle
     paddle_moved_down = paddleDown paddle
+    ball_moved
+        | detectHit guard paddle ball = moveBall $ reboundBall ball
+        | otherwise                   = moveBall ball
 
 step _ w = w  -- when not playing, don't step
 
@@ -136,6 +139,42 @@ react (EventKey (SpecialKey KeySpace) Down _ _)
 
 -- otherwise, ignore:
 react _ w = w
+
+detectHit :: Paddle -> Paddle -> Ball -> Bool
+detectHit guard paddle ball
+    = guardHit guard ball || paddleHit paddle ball
+
+guardHit :: Paddle -> Ball -> Bool
+guardHit (Paddle { paddle_location = ploc
+                 , paddle_width    = pw
+                 , paddle_height   = ph
+                 })
+         (Ball   { ball_location   = bloc
+                 , ball_radius     = br
+                 })
+    = let (px, py) = ploc
+          (bx, by) = bloc
+          bsize    = round br
+          psizeX   = (round pw) `div` 2
+          psizeY   = (round ph) `div` 2
+      in  bx - bsize <= px + psizeX &&
+          by > py - psizeY && by < py + psizeY
+
+paddleHit :: Paddle -> Ball -> Bool
+paddleHit (Paddle { paddle_location = ploc
+                  , paddle_width    = pw
+                  , paddle_height   = ph
+                  })
+          (Ball   { ball_location   = bloc
+                  , ball_radius     = br
+                  })
+    = let (px, py) = ploc
+          (bx, by) = bloc
+          bsize    = round br
+          psizeX   = (round pw) `div` 2
+          psizeY   = (round ph) `div` 2
+      in  bx + bsize > px - psizeX &&
+          by > py - psizeY && by < py + psizeY
 
 -- | Given a paddle transformer, try to move the paddle. If the move is
 -- impossible, do nothing.
