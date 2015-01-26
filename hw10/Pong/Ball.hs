@@ -37,7 +37,7 @@ ballOut b@(Ball { ball_location = (x, _) })
 
 newBall :: RandomGen g => g -> (Ball, g)
 newBall gen
-    = let (deg, gen') = randomR (15.0, 45.0) gen
+    = let (deg, gen') = randomR (10.0, 40.0) gen
           dir = (round deg) `mod` 4
           toRad = pi / 180.0
           rad = case dir of
@@ -80,7 +80,7 @@ bounceBall b@(Ball { ball_location = loc
                    })
     = let (x, y)   = loc
           (vx, vy) = vec
-          d  = fromIntegral moveStep
+          d  = fromIntegral $ moveStep * 2 -- how fast the ball rolls
           dy = round $ vy * d
           r  = round $ ballRadius b
           upperY = windowHeight - r

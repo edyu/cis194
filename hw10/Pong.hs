@@ -173,15 +173,16 @@ moveGuard :: Paddle -> Ball -> Paddle
 moveGuard g@(Paddle { paddle_location = (_, py)
                     , paddle_height   = ph
                     })
-          (Ball { ball_location = (_, by)
+          (Ball { ball_location = (bx, by)
                 , ball_velocity = (vx, _) })
-    | vx < 0 && py + limit < by
+    | vx < 0 && py + limit < by && bx < cross
         = tryMovePaddle paddleUp g
-    | vx < 0 && py - limit > by
+    | vx < 0 && py - limit > by && bx < cross
         = tryMovePaddle paddleDown g
     | otherwise = g
   where
     limit = round $ ph / 4
+    cross = windowWidth `div` 4
 
 -- | Given a paddle transformer, try to move the paddle. If the move is
 -- impossible, do nothing.
