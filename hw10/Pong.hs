@@ -8,6 +8,7 @@ module Pong where
 import Graphics.Gloss.Interface.Pure.Game
 
 import Data.Monoid
+import System.Random
 
 import Pong.Ball
 import Pong.Constants
@@ -22,15 +23,14 @@ data World = World { w_state  :: State
                    , w_guard  :: Paddle
                    , w_up     :: Bool
                    , w_down   :: Bool
+                   , w_gen    :: StdGen
                    }
 
 initialWorld :: IO World
 initialWorld = do
+    gen <- newStdGen
     let size = fromIntegral baseSize
-        ball = Ball { ball_loc    = origin
-                    , ball_color  = red
-                    , ball_radius = size / 2
-                    }
+        (ball, gen') = newBall gen
         paddle = Paddle { paddle_loc    = rightMiddle
                         , paddle_color  = blue
                         , paddle_width  = size
@@ -47,6 +47,7 @@ initialWorld = do
                    , w_guard  = guard
                    , w_up     = False
                    , w_down   = False
+                   , w_gen    = gen'
                    }
 
 step :: Float -> World -> World
@@ -58,12 +59,16 @@ step elapsed w@(World { w_state  = Playing
                       , w_down   = down
                       })
     | up && validPaddle paddle_moved_up
-    = w { w_paddle = paddle_moved_up }
+    = w { w_ball   = moveBall ball
+        , w_paddle = paddle_moved_up
+        }
     | down && validPaddle paddle_moved_down
-    = w { w_paddle = paddle_moved_down }
+    = w { w_ball   = moveBall ball
+        , w_paddle = paddle_moved_down
+        }
     | otherwise
     = w { w_state  = if gameEnded then Ended else Playing
-        , w_ball   = ball
+        , w_ball   = moveBall ball
         , w_paddle = paddle
         , w_guard  = guard
         }
@@ -139,20 +144,19 @@ render (World { w_state  = state
       -- by default, (0, 0) is the center; I want it at the bottom left
     = translate (-windowWidthF / 2) (-windowHeightF / 2) $
 
-    -- draw the ball
-    (translate (windowWidthF / 2) (windowHeightF / 2) $
-     renderBall ball) <>
+      -- draw the ball
+      (renderBall ball) <>
 
-    -- draw the left paddle
-    (renderPaddle guard) <>
+      -- draw the left paddle
+      (renderPaddle guard) <>
 
-    -- draw the right paddle
-    (renderPaddle paddle) <>
+      -- draw the right paddle
+      (renderPaddle paddle) <>
 
-    -- draw any instruction text
-    (color black $
-     scale 0.2 0.2 $
-     renderState state)
+      -- draw any instruction text
+      (color black $
+      scale 0.2 0.2 $
+      renderState state)
 
 -- | Render instruction text, based on the current state
 renderState :: State -> Picture

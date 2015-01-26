@@ -14,10 +14,6 @@ background = white
 -- | A location within a field is an x-coord and a y-coord
 type Location = (Int, Int)
 
--- | The origin point of the ball, at the center
-origin :: Location
-origin = (0, 0)
-
 -- | The base size on which the ball and paddle sizes are based
 baseSize :: Int
 baseSize = 20
@@ -31,13 +27,20 @@ windowWidth, windowHeight :: Int
 windowWidth  = 640
 windowHeight = 480
 
+middleX = windowWidth `div` 2
+middleY = windowHeight `div` 2
+
+-- | The origin point of the ball, at the center
+origin :: Location
+origin = (middleX, middleY)
+
 -- | The starting point of the paddle on the left
 leftMiddle :: Location
-leftMiddle = (0, windowHeight `div` 2)
+leftMiddle = (0, middleY)
 
 -- | The starting point of the paddle on the right
 rightMiddle :: Location
-rightMiddle = (windowWidth-baseSize, windowHeight `div` 2)
+rightMiddle = (windowWidth-baseSize, middleY)
 
 -- | The total size of the window, in pixels, stored as @Float@s
 windowWidthF, windowHeightF :: Float
