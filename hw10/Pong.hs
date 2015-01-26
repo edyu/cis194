@@ -180,15 +180,18 @@ paddleHit (Paddle { paddle_location = ploc
           by > py - psizeY && by < py + psizeY
 
 moveGuard :: Paddle -> Ball -> Paddle
-moveGuard g@(Paddle { paddle_location = (_, py) })
-          b@(Ball { ball_location = (_, y)
-                  , ball_velocity = (vx, _)
-                  })
-    | vx < 0    = if (py < y) then tryMovePaddle paddleUp g
-                              else tryMovePaddle paddleDown g
+moveGuard g@(Paddle { paddle_location = (_, py) 
+                    , paddle_height   = ph
+                    })
+          (Ball { ball_location = (_, by)
+                , ball_velocity = (vx, _) })
+    | vx < 0 && py < by
+        = if by > py + limit then tryMovePaddle paddleUp g else g
+    | vx < 0 && py > by
+        = if by < py - limit then tryMovePaddle paddleDown g else g
     | otherwise = g
-    
-
+  where
+    limit = round $ ph / 4
 
 -- | Given a paddle transformer, try to move the paddle. If the move is
 -- impossible, do nothing.
