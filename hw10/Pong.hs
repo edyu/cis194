@@ -61,20 +61,23 @@ step elapsed w@(World { w_state  = Playing
     | up && validPaddle paddle_moved_up
     = w { w_ball   = ball_moved
         , w_paddle = paddle_moved_up
+        , w_guard  = guard_moved
         }
     | down && validPaddle paddle_moved_down
     = w { w_ball   = ball_moved
         , w_paddle = paddle_moved_down
+        , w_guard  = guard_moved
         }
     | otherwise
     = w { w_state  = if (gameEnded ball) then Ended else Playing
         , w_ball   = ball_moved
         , w_paddle = paddle
-        , w_guard  = guard
+        , w_guard  = guard_moved
         }
   where
     paddle_moved_up   = paddleUp paddle
     paddle_moved_down = paddleDown paddle
+    guard_moved       = moveGuard guard ball
     ball_moved
         | detectHit guard paddle ball = moveBall $ reboundBall ball
         | otherwise                   = moveBall ball
@@ -175,6 +178,17 @@ paddleHit (Paddle { paddle_location = ploc
           psizeY   = (round ph) `div` 2
       in  bx + bsize > px - psizeX &&
           by > py - psizeY && by < py + psizeY
+
+moveGuard :: Paddle -> Ball -> Paddle
+moveGuard g@(Paddle { paddle_location = (_, py) })
+          b@(Ball { ball_location = (_, y)
+                  , ball_velocity = (vx, _)
+                  })
+    | vx < 0    = if (py < y) then tryMovePaddle paddleUp g
+                              else tryMovePaddle paddleDown g
+    | otherwise = g
+    
+
 
 -- | Given a paddle transformer, try to move the paddle. If the move is
 -- impossible, do nothing.
