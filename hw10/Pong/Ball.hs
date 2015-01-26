@@ -37,7 +37,7 @@ ballOut b@(Ball { ball_location = (x, _) })
 
 newBall :: RandomGen g => g -> (Ball, g)
 newBall gen
-    = let (deg, gen') = randomR (0.0, 45.0) gen
+    = let (deg, gen') = randomR (15.0, 45.0) gen
           dir = (round deg) `mod` 4
           toRad = pi / 180.0
           rad = case dir of

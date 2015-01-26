@@ -145,50 +145,40 @@ react _ w = w
 
 detectHit :: Paddle -> Paddle -> Ball -> Bool
 detectHit guard paddle ball
-    = guardHit guard ball || paddleHit paddle ball
-
-guardHit :: Paddle -> Ball -> Bool
-guardHit (Paddle { paddle_location = ploc
-                 , paddle_width    = pw
-                 , paddle_height   = ph
-                 })
-         (Ball   { ball_location   = bloc
-                 , ball_radius     = br
-                 })
-    = let (px, py) = ploc
-          (bx, by) = bloc
-          bsize    = round br
-          psizeX   = (round pw) `div` 2
-          psizeY   = (round ph) `div` 2
-      in  bx - bsize <= px + psizeX &&
-          by > py - psizeY && by < py + psizeY
+    = paddleHit guard ball || paddleHit paddle ball
 
 paddleHit :: Paddle -> Ball -> Bool
-paddleHit (Paddle { paddle_location = ploc
-                  , paddle_width    = pw
-                  , paddle_height   = ph
+paddleHit (Paddle { paddle_location = (px, py)
+                  , paddle_width    = width
+                  , paddle_height   = height
                   })
-          (Ball   { ball_location   = bloc
-                  , ball_radius     = br
+          (Ball   { ball_location   = (bx, by)
+                  , ball_radius     = radius
+                  , ball_velocity   = (vx, _)
                   })
-    = let (px, py) = ploc
-          (bx, by) = bloc
-          bsize    = round br
-          psizeX   = (round pw) `div` 2
-          psizeY   = (round ph) `div` 2
-      in  bx + bsize > px - psizeX &&
-          by > py - psizeY && by < py + psizeY
+    | vx > 0  -- check whether inside the paddle
+        = bx + bsize > px && bx + bsize < px + psizeX &&
+          by + bsize > py - psizeY && by - bsize < py + psizeY
+    | vx < 0  -- check whether inside the guard
+        = bx - bsize < px + psizeX && bx - bsize > px &&
+          by + bsize > py - psizeY && by - bsize < py + psizeY
+    | otherwise
+        = False
+  where
+    bsize  = round radius
+    psizeX = round width
+    psizeY = (round height) `div` 2
 
 moveGuard :: Paddle -> Ball -> Paddle
-moveGuard g@(Paddle { paddle_location = (_, py) 
+moveGuard g@(Paddle { paddle_location = (_, py)
                     , paddle_height   = ph
                     })
           (Ball { ball_location = (_, by)
                 , ball_velocity = (vx, _) })
-    | vx < 0 && py < by
-        = if by > py + limit then tryMovePaddle paddleUp g else g
-    | vx < 0 && py > by
-        = if by < py - limit then tryMovePaddle paddleDown g else g
+    | vx < 0 && py + limit < by
+        = tryMovePaddle paddleUp g
+    | vx < 0 && py - limit > by
+        = tryMovePaddle paddleDown g
     | otherwise = g
   where
     limit = round $ ph / 4
