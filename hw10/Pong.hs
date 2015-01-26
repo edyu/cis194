@@ -31,15 +31,15 @@ initialWorld = do
     gen <- newStdGen
     let size = fromIntegral baseSize
         (ball, gen') = newBall gen
-        paddle = Paddle { paddle_loc    = rightMiddle
-                        , paddle_color  = blue
-                        , paddle_width  = size
-                        , paddle_height = size * 4
+        paddle = Paddle { paddle_location = rightMiddle
+                        , paddle_color    = blue
+                        , paddle_width    = size
+                        , paddle_height   = size * 4
                         }
-        guard  = Paddle { paddle_loc    = leftMiddle
-                        , paddle_color  = blue
-                        , paddle_width  = size
-                        , paddle_height = size * 4
+        guard  = Paddle { paddle_location = leftMiddle
+                        , paddle_color    = blue
+                        , paddle_width    = size
+                        , paddle_height   = size * 4
                         }
     return $ World { w_state  = NotStarted
                    , w_ball   = ball
@@ -67,7 +67,7 @@ step elapsed w@(World { w_state  = Playing
         , w_paddle = paddle_moved_down
         }
     | otherwise
-    = w { w_state  = if gameEnded then Ended else Playing
+    = w { w_state  = if (gameEnded ball) then Ended else Playing
         , w_ball   = moveBall ball
         , w_paddle = paddle
         , w_guard  = guard
@@ -78,8 +78,8 @@ step elapsed w@(World { w_state  = Playing
 
 step _ w = w  -- when not playing, don't step
 
-gameEnded :: Bool
-gameEnded = False
+gameEnded :: Ball -> Bool
+gameEnded = ballOut
 
 -- | React to a user event
 react :: Event -> World -> World
@@ -112,11 +112,27 @@ react ev w@(World { w_state  = Playing
 
 -- handle spacebar when game is stopped
 react (EventKey (SpecialKey KeySpace) Down _ _)
-      w
-    = w { w_state = Playing
-        , w_up    = False
-        , w_down  = False
-        }
+      w@(World { w_gen = gen })
+    = let size = fromIntegral baseSize
+          (ball, gen') = newBall gen
+          paddle = Paddle { paddle_location = rightMiddle
+                          , paddle_color    = blue
+                          , paddle_width    = size
+                          , paddle_height   = size * 4
+                          }
+          guard  = Paddle { paddle_location = leftMiddle
+                          , paddle_color    = blue
+                          , paddle_width    = size
+                          , paddle_height   = size * 4
+                          }
+      in  w { w_state = Playing
+          , w_ball  = ball
+          , w_paddle = paddle
+          , w_guard  = guard
+          , w_up     = False
+          , w_down   = False
+          , w_gen    = gen'
+          }
 
 -- otherwise, ignore:
 react _ w = w

@@ -6,6 +6,7 @@
 module Pong.Ball where
 
 import Pong.Constants
+import Pong.Paddle
 
 import Graphics.Gloss
 import System.Random
@@ -21,10 +22,6 @@ data Ball = Ball { ball_location :: Location
                  , ball_velocity :: Velocity
                  }
 
--- | Get the location of the ball
-ballLoc :: Ball -> Location
-ballLoc ball = ball_location ball
-
 -- | Get the color of the ball
 ballColor :: Ball -> Color
 ballColor ball = ball_color ball
@@ -32,6 +29,9 @@ ballColor ball = ball_color ball
 -- | Get the radius of the ball
 ballRadius :: Ball -> Float
 ballRadius ball = ball_radius ball
+
+ballOut :: Ball -> Bool
+ballOut Ball { ball_location = (x, _) } = x < 0 || x > windowWidth
 
 newBall :: RandomGen g => g -> (Ball, g)
 newBall gen
@@ -52,30 +52,42 @@ moveBall :: Ball -> Ball
 moveBall b@(Ball { ball_location = loc
                  , ball_velocity = vec
                  })
+    | ballOut b = b  -- no need to do anything more if ball is already out
+    | otherwise =
+        let (x, y)   = loc
+            (vx, vy) = vec
+            d  = fromIntegral moveStep
+            dx = round $ vx * d
+            r  = round $ ballRadius b
+        in  bounceBall $ b { ball_location = (x + dx, y) }
+
+bounceBall :: Ball -> Ball
+bounceBall b@(Ball { ball_location = loc
+                   , ball_velocity = vec
+                   })
     = let (x, y)   = loc
           (vx, vy) = vec
           d  = fromIntegral moveStep
-          dx = round $ vx * d
           dy = round $ vy * d
-          r = round $ ballRadius b
+          r  = round $ ballRadius b
           upperY = windowHeight - r
           lowerY = r
       in  case y + dy of
               y' | y' > upperY ->
-                  b { ball_location = (x + dx, upperY)
+                  b { ball_location = (x, upperY)
                     , ball_velocity = (vx, -vy)
                     }
               y' | y' < lowerY ->
-                  b { ball_location = (x + dx, lowerY)
+                  b { ball_location = (x, lowerY)
                     , ball_velocity = (vx, -vy)
                     }
               _ ->
-                  b { ball_location = (x + dx, y + dy) }
+                  b { ball_location = (x, y + dy) }
 
 -- | Render the ball at the given location.
 renderBall :: Ball -> Picture
 renderBall ball =
-    let (x, y) = ballLoc ball
+    let (x, y) = ball_location ball
         fx     = fromIntegral x
         fy     = fromIntegral y
     in  translate fx fy $

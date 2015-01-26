@@ -13,15 +13,11 @@ import Control.Arrow
 
 
 -- | The paddle
-data Paddle = Paddle { paddle_loc    :: Location
-                     , paddle_color  :: Color
-                     , paddle_width  :: Float
-                     , paddle_height :: Float
+data Paddle = Paddle { paddle_location :: Location
+                     , paddle_color    :: Color
+                     , paddle_width    :: Float
+                     , paddle_height   :: Float
                      }
-
--- | Get the location of the ball
-paddleLoc :: Paddle -> Location
-paddleLoc paddle = paddle_loc paddle
 
 -- | Get the color of the paddle
 paddleColor :: Paddle -> Color
@@ -37,14 +33,15 @@ paddleHeight paddle = paddle_height paddle
 
 -- | Move the paddle
 movePaddle :: (Location -> Location) -> Paddle -> Paddle
-movePaddle loc_f p@(Paddle { paddle_loc = loc }) = p { paddle_loc = loc_f loc }
+movePaddle loc_f p@(Paddle { paddle_location = loc })
+    = p { paddle_location = loc_f loc }
 
 -- | Render the paddle at the given location.
 renderPaddle :: Paddle -> Picture
 renderPaddle paddle =
     color (paddleColor paddle) (polygon path)
   where
-    (x, y) = paddleLoc paddle
+    (x, y) = paddle_location paddle
     fx = fromIntegral x
     fy = fromIntegral y
     width  = paddleWidth paddle
@@ -60,7 +57,7 @@ paddleUp :: Paddle -> Paddle
 paddleUp = movePaddle $ second (+ moveStep)
 
 validPaddle :: Paddle -> Bool
-validPaddle p@(Paddle { paddle_loc = loc })
+validPaddle p@(Paddle { paddle_location = loc })
     = let height = (paddleHeight p) / 2
           (x, y) = loc
       in  case fromIntegral y of
