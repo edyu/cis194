@@ -53,8 +53,16 @@ renderPaddle paddle =
 
 -- | Move a paddle down
 paddleDown :: Paddle -> Paddle
-paddleDown = movePaddle $ second (subtract 1)
+paddleDown = movePaddle $ second (subtract moveStep)
 
 -- | Move a paddle up
 paddleUp :: Paddle -> Paddle
-paddleUp = movePaddle $ second (+ 1)
+paddleUp = movePaddle $ second (+ moveStep)
+
+validPaddle :: Paddle -> Bool
+validPaddle p@(Paddle { paddle_loc = loc })
+    = let height = (paddleHeight p) / 2
+          (x, y) = loc
+      in  case fromIntegral y of
+          fy | fy >= height && fy <= windowHeightF - height -> True
+          _                                                 -> False

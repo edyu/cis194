@@ -22,6 +22,10 @@ origin = (0, 0)
 baseSize :: Int
 baseSize = 20
 
+-- | The amount each key press moves the paddle
+moveStep :: Int
+moveStep = 10
+
 -- | The total size of the window, in pixels
 windowWidth, windowHeight :: Int
 windowWidth  = 640

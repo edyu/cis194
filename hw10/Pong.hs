@@ -20,6 +20,8 @@ data World = World { w_state  :: State
                    , w_ball   :: Ball
                    , w_paddle :: Paddle
                    , w_guard  :: Paddle
+                   , w_up     :: Bool
+                   , w_down   :: Bool
                    }
 
 initialWorld :: IO World
@@ -43,6 +45,8 @@ initialWorld = do
                    , w_ball   = ball
                    , w_paddle = paddle
                    , w_guard  = guard
+                   , w_up     = False
+                   , w_down   = False
                    }
 
 step :: Float -> World -> World
@@ -50,12 +54,22 @@ step elapsed w@(World { w_state  = Playing
                       , w_ball   = ball
                       , w_paddle = paddle
                       , w_guard  = guard
+                      , w_up     = up
+                      , w_down   = down
                       })
+    | up && validPaddle paddle_moved_up
+    = w { w_paddle = paddle_moved_up }
+    | down && validPaddle paddle_moved_down
+    = w { w_paddle = paddle_moved_down }
+    | otherwise
     = w { w_state  = if gameEnded then Ended else Playing
         , w_ball   = ball
         , w_paddle = paddle
         , w_guard  = guard
         }
+  where
+    paddle_moved_up   = paddleUp paddle
+    paddle_moved_down = paddleDown paddle
 
 step _ w = w  -- when not playing, don't step
 
@@ -64,24 +78,56 @@ gameEnded = False
 
 -- | React to a user event
 react :: Event -> World -> World
-react ev w@(World { w_state = Playing
+react ev w@(World { w_state  = Playing
+                  , w_paddle = paddle
+                  , w_up     = up
+                  , w_down   = down
                   })
-  -- handle keypresses
-  = case ev of
-        EventKey (SpecialKey KeyUp) Down _ _ ->
-            w
-        EventKey (SpecialKey KeyDown) Down _ _ ->
-            w
-        _ -> w
+    -- handle keypresses
+    = case ev of
+          EventKey (SpecialKey KeyUp) Down _ _ ->
+              w { w_paddle = tryMovePaddle paddleUp paddle
+                , w_up   = True
+                , w_down = False
+                }
+          EventKey (SpecialKey KeyDown) Down _ _ ->
+              w { w_paddle = tryMovePaddle paddleDown paddle
+                , w_up   = False
+                , w_down = True
+                }
+          EventKey (SpecialKey KeyUp) Up _ _ ->
+              w { w_up = False }
+          EventKey (SpecialKey KeyDown) Up _ _ ->
+              w { w_down = False }
+          EventKey (MouseButton WheelUp) Down _ _ ->
+              w { w_paddle = tryMovePaddle paddleUp paddle }
+          EventKey (MouseButton WheelDown) Down _ _ ->
+              w { w_paddle = tryMovePaddle paddleDown paddle }
+          _ -> w
 
 -- handle spacebar when game is stopped
 react (EventKey (SpecialKey KeySpace) Down _ _)
       w
     = w { w_state = Playing
+        , w_up    = False
+        , w_down  = False
         }
 
 -- otherwise, ignore:
 react _ w = w
+
+-- | Given a paddle transformer, try to move the paddle. If the move is
+-- impossible, do nothing.
+tryMovePaddle :: (Paddle -> Paddle) -> Paddle -> Paddle
+tryMovePaddle mover paddle
+    | validPaddle moved_paddle
+    = moved_paddle
+
+    | otherwise
+    = paddle
+
+  where
+    moved_paddle = mover paddle
 
 -- | Render the world into a picture.
 render :: World -> Picture
