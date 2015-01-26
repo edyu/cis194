@@ -35,8 +35,14 @@ ballOut Ball { ball_location = (x, _) } = x < 0 || x > windowWidth
 
 newBall :: RandomGen g => g -> (Ball, g)
 newBall gen
-    = let (deg, gen') = randomR (0.0, 360.0) gen
-          rad = deg / 360 * 2 * pi
+    = let (deg, gen') = randomR (0.0, 45.0) gen
+          dir = (round deg) `mod` 4
+          toRad = pi / 180.0
+          rad = case dir of
+                0 -> deg * toRad
+                1 -> (180 - deg) * toRad
+                2 -> (180 + deg) * toRad
+                3 -> (360 - deg) * toRad
           size = fromIntegral baseSize
           vx = cos rad
           vy = sin rad
